@@ -1,0 +1,4 @@
+name = "DiscSimulations"
+uuid = "6b70c037-2cb8-40ee-8671-656d8c686c0a"
+authors = ["fjebaker <fergusbkr@gmail.com>"]
+version = "0.1.0"
