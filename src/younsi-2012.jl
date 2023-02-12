@@ -1,3 +1,9 @@
+module PolishDoughnut
+
+using DifferentialEquations
+using StaticArrays
+using ForwardDiff
+using Roots
 
 # define a derivative functor
 D(f) = x -> ForwardDiff.derivative(f, x)
@@ -109,5 +115,6 @@ function isobar(M, a, n, rₖ; θ = π / 2, init_r = 5.0, max_λ = 40.0)
     r[I], z[I]
 end
 
+end # module PolishDoughnut
 
-export isobar
+export PolishDoughnut
