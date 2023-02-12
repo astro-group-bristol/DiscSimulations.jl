@@ -1,11 +1,13 @@
 name = "DiscSimulations"
 uuid = "6b70c037-2cb8-40ee-8671-656d8c686c0a"
 authors = ["fjebaker <fergusbkr@gmail.com>"]
-version = "0.1.1"
+version = "0.1.2"
 
 [deps]
+ApproxFun = "28f2ccd6-bb30-5033-b560-165f7b14dc2f"
 DifferentialEquations = "0c46a032-eb83-5123-abaf-570d42b7fbaa"
 ForwardDiff = "f6369f11-7733-5829-9624-2563aa707210"
-Revise = "295af30f-e4ad-537b-8983-00126c2a3abe"
+LinearAlgebra = "37e2e46d-f89d-539d-b4ee-838fcccc9c8e"
 Roots = "f2b01f46-fcfa-551c-844a-d8ac1e96c665"
 StaticArrays = "90137ffa-7385-5640-81b9-e52037218182"
+Trixi = "a7f1ee26-1774-49b1-8366-f1abc58fbfcb"
