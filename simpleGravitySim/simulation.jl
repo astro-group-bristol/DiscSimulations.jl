@@ -1,34 +1,29 @@
 #modules and packages
+include("./simpleGravity.jl")
 using .simpleGravity
 using Trixi
 using OrdinaryDiffEq
 using Plots
 using Printf
 
-function get_accelerations(x, t, equations)
-    #original eqs factored in y but that is 0 here
-    q1 = -2*π*sin(π*x)*sin(0)
-    q2 = 4*π*cos(π*x)*cos(0)
-    return q1, q2
-end
 
 function build_initial_conditions(user_supplied_ρ::Function)
     # define named lambda
     function _init_conditions(x, t, equations)
         # call user supplied function
         ρ = user_supplied_ρ(x, t, equations)
-        # acceleration fields
-        acc_x, acc_y = get_accelerations(x, t, equations)
-        return SVector(ρ, acc_x, acc_y)
+        #using the acceleration calculation in the og paper's setup for now
+        q1 = -2*π*sin(π*x[1])*sin(0)
+        return SVector(ρ,q1)
     end
     # closures are captured, so return the function to use in trixi
     return _init_conditions
 end
 
 #set up solver for equations
-function setSolver(initCond, mesh)
+function setSolver(initCond, equations, mesh)
     solver = DGSEM(3, flux_central)
-    semi = SemidiscretizationHyperbolic(mesh, equation, initial_condition_sine, solver)
+    semi = SemidiscretizationHyperbolic(mesh, equations, initCond, solver)
     tspan = (0.0, 0.1)
     ode = semidiscretize(semi, tspan)
     return ode
@@ -46,21 +41,25 @@ function runAnimation(ode)
 end
 
 function main(user_supplied_ρ::Function)
-    #equations
-    gravEq = simpleGravity.gravEq()
-    x = ##
-    t = ##
-    equations = ##
+    #setting up grav eq
+    equations = simpleGravity.gravEq1D()
+
+    #arbitrary initial conditions
+    x0 = 0
+    t0 = 0
+    mesh = TreeMesh(-1.0, 1.0, # min/max coordinates
+                initial_refinement_level=4,
+                n_cells_max=10^4)
 
     #get initial conditions function and run
     _init_conditions(x, t, equations) = build_initial_conditions(user_supplied_ρ::Function)
-    initCond = _init_conditions(x, t, equations)
 
     #solver
-    ode = setSolver(initCond, mesh)
+    ode = setSolver(_init_conditions(x0, t0, equations), equations, mesh)
     
     #run
     runAnimation(ode)
 end
 
-main(sin())
+initial_condition_sine(x, t, equation::simpleGravity.gravEq1D) = sinpi(x[1])
+main(initial_condition_sine)
