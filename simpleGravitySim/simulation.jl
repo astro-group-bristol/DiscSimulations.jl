@@ -13,7 +13,7 @@ function build_initial_conditions(user_supplied_ρ::Function)
         # call user supplied function
         ρ = user_supplied_ρ(x, t, equations)
         #using the acceleration calculation in the og paper's setup for now
-        q1 = -2*π*sin(π*x[1])*sin(0)
+        q1 = -2*π*sin(π*x[1])
         return SVector(ρ,q1)
     end
     # closures are captured, so return the function to use in trixi
@@ -35,7 +35,7 @@ function runAnimation(ode)
     tspan = collect(range(0.0, 1.0, 60))
     frames = Plots.@animate for t in tspan
         p = plot(sol(t))
-        plot!(p, legend=:outertopright, title = Printf.@sprintf("t = %1.2f", t), xlabel = "x", ylabel="f")
+        plot!(p, legend=:outertopright, title = Printf.@sprintf("t = %1.2f", t), xlims=(-80,80), xlabel = "x", ylabel="f")
     end
     gif(frames, "temp.gif", fps=10) |> display
 end
@@ -62,4 +62,9 @@ function main(user_supplied_ρ::Function)
 end
 
 initial_condition_sine(x, t, equation::simpleGravity.gravEq1D) = sinpi(x[1])
+
+#other initial condition options:
+#initial_condition_cos(x, t, equation::simpleGravity.gravEq1D) = 2 + 2*cos(π*x[1])
+#initial_condition_x(x, t, equation::simpleGravity.gravEq1D) = x[1]
+
 main(initial_condition_sine)
