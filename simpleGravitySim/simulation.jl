@@ -6,6 +6,10 @@ using OrdinaryDiffEq
 using Plots
 using Printf
 
+T_SPAN = 5.0
+XMIN = 0
+XMAX = 2π
+N = 512
 
 function build_initial_conditions(user_supplied_ρ::Function)
     # define named lambda
@@ -22,47 +26,45 @@ end
 
 #set up solver for equations
 function setSolver(initCond, equations, mesh)
-    boundary_conditions = (x_neg=BoundaryConditionDirichlet(((x, t, equations) -> SVector(sin(x[1]), -2*π*sin(π * x[1])))),
-                       x_pos=BoundaryConditionDirichlet(((x, t, equations) -> SVector(sin(x[1]), -2*π*sin(π * x[1])))))
+    boundary_conditions = (x_neg=BoundaryConditionDirichlet(Trixi.boundary_condition_do_nothing),
+                       x_pos=BoundaryConditionDirichlet(Trixi.boundary_condition_do_nothing))
     solver = DGSEM(3, flux_central)
     semi = SemidiscretizationHyperbolic(mesh, equations, initCond, solver, boundary_conditions=boundary_conditions)
-    tspan = (0.0, 1.0)
+    tspan = (0.0, T_SPAN)
     ode = semidiscretize(semi, tspan)
-    return ode
+    return ode, semi
 end
 
-#run simulations and collect results
-function runAnimation(ode)
+function runAnimation(ode, semi)
     callbacks = CallbackSet(SummaryCallback())
     sol = @time solve(ode, RDPK3SpFSAL49(), abstol=1.0e-7, reltol=1.0e-7, callback=callbacks)
-    tspan = collect(range(0.0, 1.0, 60))
-    frames = Plots.@animate for t in tspan
-        p = plot(sol(t))
-        plot!(p, legend=:outertopright, title = Printf.@sprintf("t = %1.2f", t), xlims=(-80,80), xlabel = "x", ylabel="f")
+    begin
+        ts = collect(range(0.0, T_SPAN, 150))
+        frames = Plots.@animate for t in ts
+            pd = PlotData1D(sol(t), semi)
+            # plot!(p, legend=:outertopright, title = Printf.@sprintf("t = %1.2f", t), xlabel = "x", ylabel="f", ylims = (-1, 1))
+            plot(pd, label = Printf.@sprintf("t = %1.2f", t), ylims = (-1, 1.1), legend = :topright)
+        end
+        gif(frames, "temp.gif", fps=10) |> display
     end
-    gif(frames, "temp.gif", fps=10) |> display
 end
 
 function main(user_supplied_ρ::Function)
     #setting up grav eq
     equations = simpleGravity.gravEq1D()
 
-    #arbitrary initial conditions
-    x0 = 0
-    t0 = 0
-    mesh = TreeMesh(-1.0, 1.0, # min/max coordinates
+    mesh = TreeMesh(XMIN, XMAX, # min/max coordinates
                 initial_refinement_level=4,
                 periodicity=false,
-                n_cells_max=10^4)
+                n_cells_max=N)
 
     #get initial conditions function and run
-    _init_conditions(x, t, equations) = build_initial_conditions(user_supplied_ρ::Function)
-
+    _init_conditions = build_initial_conditions(user_supplied_ρ::Function)
     #solver
-    ode = setSolver(_init_conditions(x0, t0, equations), equations, mesh)
+    ode, semi = setSolver(_init_conditions, equations, mesh)
     
     #run
-    runAnimation(ode)
+    runAnimation(ode, semi)
 end
 
 #from 3.1.1 of the paper. doesn't matter but thought i'd use it
