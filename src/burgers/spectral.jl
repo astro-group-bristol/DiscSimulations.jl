@@ -26,7 +26,7 @@ function setup(N, x_max, init = STANDARD_BURGER_INIT, t_span = STANDARD_BURGER_T
     space = Fourier()
     x = points(space, N)
 
-    D = (Derivative(space) → space)[1:N, 1:N]
+    D = (Derivative(space)→space)[1:N, 1:N]
 
     # fourier transform
     T = ApproxFun.plan_transform(space, N)
