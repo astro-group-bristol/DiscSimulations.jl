@@ -1,4 +1,5 @@
-#modules and packages
+module simpleGravitySimulation
+
 include("./simpleGravity.jl")
 using .simpleGravity
 using Trixi
@@ -51,36 +52,21 @@ function runAnimation(ode, semi)
     end
 end
 
-function main(user_supplied_ρ::Function)
+function solve_gravity_sim(user_supplied_ρ::Function)
     γ = 2.0
-
     #setting up grav eq
     equations = simpleGravity.GravityEquations1D(γ)
-
     #get initial conditions function and run
     _init_conditions = build_initial_conditions(user_supplied_ρ::Function)
-
     mesh = TreeMesh(XMIN, XMAX, # min/max coordinates
                 initial_refinement_level=4,
                 periodicity=false,
                 n_cells_max=N)
-
-    #solver
     ode, semi = setSolver(_init_conditions, equations, mesh)
-    
-    #run
-    runAnimation(ode, semi)
+    sol = solve(ode, RDPK3SpFSAL49(), abstol=1.0e-7, reltol=1.0e-7, callback=callbacks)
+    DiscSolution(sol, semi, OneDimension())
 end
 
-#from 3.1.1 of the paper. doesn't matter but thought i'd use it
-#initial_condition_sine(x, t, equation::simpleGravity.GravityEquations1D) = 2 + (1/10) * sin(π*(x[1] - t))
-initial_condition_sine(x, t, equation::simpleGravity.GravityEquations1D) = sin(x[1])
+end #module
 
-#other initial condition options:
-#initial_condition = (x, t, equations) -> SVector(0.0)
-#initial_condition_cos(x, t, equation::simpleGravity.GravityEquations1D) = SVector(2 + 2*cos(π*x[1]))
-#initial_condition_x(x, t, equation::simpleGravity.GravityEquations1D) = x[1]
-
-#main(initial_condition)
-
-main(initial_condition_sine)
+export simpleGravitySimulation

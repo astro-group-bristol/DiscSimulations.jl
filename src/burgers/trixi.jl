@@ -2,11 +2,18 @@ module BurgerTrixi
 
 using Trixi
 using DifferentialEquations
+using Plots
+using Printf
 
-import DiscSimulations:
-    STANDARD_BURGER_INIT, STANDARD_BURGER_TSPAN, DiscSolution, OneDimension
+include("utils.jl")
+using .BurgerUtils
 
-function setup(N, x_max, init = STANDARD_BURGER_INIT, t_span = STANDARD_BURGER_TSPAN)
+include("../solution.jl")
+
+#import DiscSimulations:
+#    BurgerUtils.STANDARD_BURGER_INIT, BurgerUtils.STANDARD_BURGER_TSPAN, DiscSolution, OneDimension
+
+function setup(N, x_max, init = BurgerUtils.STANDARD_BURGER_INIT, t_span = BurgerUtils.STANDARD_BURGER_TSPAN)
     x_min = 0.0
 
     equations = InviscidBurgersEquation1D()
@@ -20,10 +27,10 @@ function setup(N, x_max, init = STANDARD_BURGER_INIT, t_span = STANDARD_BURGER_T
     semi, problem
 end
 
-function solve_disc(N, x_max, init = STANDARD_BURGER_INIT, t_span = STANDARD_BURGER_TSPAN)
+function solve_disc(N, x_max, init = BurgerUtils.STANDARD_BURGER_INIT, t_span = BurgerUtils.STANDARD_BURGER_TSPAN)
     semi, problem = setup(N, x_max, init, t_span)
     sol = solve(problem, RDPK3SpFSAL49(), abstol = 1.0e-7, reltol = 1.0e-7)
-    DiscSolution(sol, semi, OneDimension())
+    return DiscSolution(sol, semi)
 end
 
 end # module BurgerTrixi
