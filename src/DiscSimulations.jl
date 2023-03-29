@@ -1,4 +1,4 @@
-module DiscSimulationsjl
+module DiscSimulations
 
 using LinearAlgebra
 using Plots
