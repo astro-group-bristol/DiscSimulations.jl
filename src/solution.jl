@@ -15,24 +15,25 @@ function DiscSolution(sol, semi, dimension_type::AbstractDimension)
 end
 
 #1D version of plot
-function dataplot(solution::DiscSolution{OneDimension})
+function dataplot(solution::DiscSolution{<:OneDimension}, t)
     return PlotData1D(solution.sol(t), solution.semi)
 end
 
 #2D version of plot
-function dataplot(solution::DiscSolution{TwoDimension})
+function dataplot(solution::DiscSolution{<:TwoDimension}, t)
     return PlotData2D(solution.sol(t), solution.semi)
 end
 
-function plotgif(solution, tmin, tmax)
+function plotgif(solution, tmin, tmax; kwargs...)
     ts = range(tmin, tmax, 150)
     frames = Plots.@animate for t in ts
-        pd = dataplot(solution)
+        pd = dataplot(solution, t)
         plot(
-            pd,
+            pd;
             label = Printf.@sprintf("t = %1.2f", t),
-            ylims = (-0.1, 2.1),
-            legend = :topright,
+            # ylims = (-0.1, 2.1),
+            # legend = :topright,
+            kwargs...
         )
     end
     gif(frames, "temp.gif", fps = 10) |> display
