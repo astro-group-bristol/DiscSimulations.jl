@@ -1,4 +1,4 @@
-module DiscSimulationsjl
+module DiscSimulations
 
 using LinearAlgebra
 using Plots
@@ -14,16 +14,19 @@ include("younsi-2012.jl")
 include("Euler_with_source.jl")
 include("burgers/trixi.jl")
 
-struct Parameters{}
-    N
-    xmin
-    xmax
+##need to add functype constructors??
+
+#struct Parameters{T,DensityFuncType,SourceFuncType}
+struct Parameters{T}
+    N::Int
+    xmin::T
+    xmax::T
     ρ
     source
 end
 
 abstract type SimulationType end
-main(p::Parameters, ::SimulationType) = error("Unknown simulation type.")
+main(p::Parameters, ::SimulationType) = error("Unknown simulation type: $(typeof(t))")
 
 struct BurgersSimulation <: SimulationType end
 struct EulerWithSourceSimulation <: SimulationType end

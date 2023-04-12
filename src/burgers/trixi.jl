@@ -30,7 +30,7 @@ end
 function solve_disc(N, x_max, init = BurgerUtils.STANDARD_BURGER_INIT, t_span = BurgerUtils.STANDARD_BURGER_TSPAN)
     semi, problem = setup(N, x_max, init, t_span)
     sol = solve(problem, RDPK3SpFSAL49(), abstol = 1.0e-7, reltol = 1.0e-7)
-    return DiscSolution(sol, semi)
+    return DiscSolution(sol, semi, OneDimension())
 end
 
 end # module BurgerTrixi
