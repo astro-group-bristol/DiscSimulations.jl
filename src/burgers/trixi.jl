@@ -5,15 +5,10 @@ using DifferentialEquations
 using Plots
 using Printf
 
-include("utils.jl")
-using .BurgerUtils
+import DiscSimulations:
+    STANDARD_BURGER_INIT, STANDARD_BURGER_TSPAN, DiscSolution, OneDimension
 
-include("../solution.jl")
-
-#import DiscSimulations:
-#    BurgerUtils.STANDARD_BURGER_INIT, BurgerUtils.STANDARD_BURGER_TSPAN, DiscSolution, OneDimension
-
-function setup(N, x_max, init = BurgerUtils.STANDARD_BURGER_INIT, t_span = BurgerUtils.STANDARD_BURGER_TSPAN)
+function setup(N, x_max, init = STANDARD_BURGER_INIT, t_span = STANDARD_BURGER_TSPAN)
     x_min = 0.0
 
     equations = InviscidBurgersEquation1D()
@@ -22,12 +17,12 @@ function setup(N, x_max, init = BurgerUtils.STANDARD_BURGER_INIT, t_span = Burge
     mesh = TreeMesh(x_min, x_max, initial_refinement_level = 3, n_cells_max = N)
     semi = SemidiscretizationHyperbolic(mesh, equations, (x, t, eqs) -> init(x), solver)
 
-    problem = semidiscretize(semi, t_span)
+    ode = semidiscretize(semi, t_span)
 
-    semi, problem
+    semi, ode
 end
 
-function solve_disc(N, x_max, init = BurgerUtils.STANDARD_BURGER_INIT, t_span = BurgerUtils.STANDARD_BURGER_TSPAN)
+function solve_disc(N, x_max, init = STANDARD_BURGER_INIT, t_span = STANDARD_BURGER_TSPAN)
     semi, problem = setup(N, x_max, init, t_span)
     sol = solve(problem, RDPK3SpFSAL49(), abstol = 1.0e-7, reltol = 1.0e-7)
     return DiscSolution(sol, semi, OneDimension())

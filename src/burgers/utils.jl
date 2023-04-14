@@ -1,5 +1,3 @@
-module BurgerUtils
-
 function central_difference(Δu, N)
     lower = -ones(Float64, N - 1)
     mid = zeros(Float64, N)
@@ -12,7 +10,3 @@ function STANDARD_BURGER_INIT(x)
 end
 
 const STANDARD_BURGER_TSPAN = (0.0, 1.0)
-
-end # module BurgerUtils
-
-export BurgerUtils

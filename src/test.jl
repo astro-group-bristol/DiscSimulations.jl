@@ -6,5 +6,6 @@ source_zero(u, x, t, equations) = SVector(0, 0, 0)
 params = DiscSimulations.Parameters(512, 0.0, 2π, initial_condition_sine, source_zero)
 
 solution = DiscSimulations.main(params, DiscSimulations.BurgersSimulation())
-DiscSimulations.Base.show(IO, solution)
-DiscSimulations.plotgif(solution, 0.0, 2.0)
+s = DiscSimulations.DiscSolution(solution.sol, solution.semi, DiscSimulations.OneDimension())
+kwargs = ["ylims = (-1, 1.1)", "legend = :topright"]
+DiscSimulations.plotgif(s, 0.0, 2.0)#, kwargs)
