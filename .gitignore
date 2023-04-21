@@ -24,3 +24,6 @@ docs/site/
 Manifest.toml
 
 .vscode
+
+#Julia system image
+JuliaSysimage.dll

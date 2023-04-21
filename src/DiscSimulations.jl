@@ -13,6 +13,7 @@ struct Parameters{T}
     xmax::T
     ρ
     source
+    t_span
 end
 
 abstract type SimulationType end
@@ -22,7 +23,7 @@ struct BurgersSimulation <: SimulationType end
 struct EulerWithSourceSimulation <: SimulationType end
 struct SimpleGravitySimulation <: SimulationType end
 
-main(p::Parameters, ::BurgersSimulation) = BurgerTrixi.solve_disc(p.N, p.xmax)
+main(p::Parameters, ::BurgersSimulation) = BurgerTrixi.solve_disc(p.N, p.xmin, p.xmax, p.ρ, p.t_span)
 main(p::Parameters, ::EulerWithSourceSimulation) = EulerSource.solve_euler(p.source)
 main(p::Parameters, ::SimpleGravitySimulation) = SimpleGravitySimulation.solve_gravity_sim(p.ρ)
 
@@ -34,7 +35,7 @@ include("burgers/trixi.jl")
 #include("burgers/simple.jl")
 include("simpleGravitySim/simpleGravity.jl")
 include("simpleGravitySim/simulation.jl")
-include("younsi-2012.jl")
+#include("younsi-2012.jl")
 include("Euler_with_source.jl")
 
 
