@@ -14,6 +14,7 @@ struct Parameters{T}
     ρ
     source
     t_span
+    refinement_level::Int
 end
 
 abstract type SimulationType end
@@ -23,7 +24,7 @@ struct BurgersSimulation <: SimulationType end
 struct EulerWithSourceSimulation <: SimulationType end
 struct SimpleGravitySimulation <: SimulationType end
 
-main(p::Parameters, ::BurgersSimulation) = BurgerTrixi.solve_disc(p.N, p.xmin, p.xmax, p.ρ, p.t_span)
+main(p::Parameters, ::BurgersSimulation) = BurgerTrixi.solve_disc(p.N, p.xmin, p.xmax, p.refinement_level, p.ρ, p.t_span)
 main(p::Parameters, ::EulerWithSourceSimulation) = EulerSource.solve_euler(p.source)
 main(p::Parameters, ::SimpleGravitySimulation) = SimpleGravitySimulation.solve_gravity_sim(p.ρ)
 

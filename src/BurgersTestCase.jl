@@ -3,10 +3,10 @@ using .DiscSimulations
 
 xmin = 0.0
 xmax = 1.0
-N = 256
+N = 1024
 
 tmax = (xmax - xmin)/1.0
-t_span = (0.0, tmax)
+t_span = (0.0, 0.2*tmax)
 
 function initial_condition_burgers(x)
     u = 1.0
@@ -19,7 +19,7 @@ end
 #params expects this so we're defining a dummy one
 source_zero(u, x, t, equations) = SVector(0, 0, 0)
 
-params = DiscSimulations.Parameters(N, xmin, xmax, initial_condition_burgers, source_zero, t_span)
+params = DiscSimulations.Parameters(N, xmin, xmax, initial_condition_burgers, source_zero, t_span, 8)
 
 solution = DiscSimulations.main(params, DiscSimulations.BurgersSimulation())
 s = DiscSimulations.DiscSolution(solution.sol, solution.semi, DiscSimulations.OneDimension())
