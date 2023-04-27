@@ -1,5 +1,6 @@
 include("DiscSimulations.jl")
 using .DiscSimulations
+using BenchmarkTools
 
 xmin = 0.0
 xmax = 1.0
@@ -21,7 +22,11 @@ source_zero(u, x, t, equations) = SVector(0, 0, 0)
 
 params = DiscSimulations.Parameters(N, xmin, xmax, initial_condition_burgers, source_zero, t_span, 8)
 
-solution = DiscSimulations.main(params, DiscSimulations.BurgersSimulation())
+@benchmark solution = DiscSimulations.main(params, DiscSimulations.BurgersSimulation())
 s = DiscSimulations.DiscSolution(solution.sol, solution.semi, DiscSimulations.OneDimension())
+
+open("julia-output.csv", "w") do file
+    write(file, string(last(s.sol)))
+end
 
 DiscSimulations.plotgif(s, t_span[1], t_span[2]; xlims = (0, 1), ylims = (0, 2), legend = :topright)
