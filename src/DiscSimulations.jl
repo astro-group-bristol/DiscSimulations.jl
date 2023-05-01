@@ -8,13 +8,14 @@ TruncatedStacktraces.VERBOSE[] = true
 
 #struct Parameters{T,DensityFuncType,SourceFuncType}
 struct Parameters{T}
-    N::Int
     xmin::T
     xmax::T
     ρ
     source
     t_span
     refinement_level::Int
+    polydegree
+    flux_type
 end
 
 abstract type SimulationType end
@@ -24,7 +25,7 @@ struct BurgersSimulation <: SimulationType end
 struct EulerWithSourceSimulation <: SimulationType end
 struct SimpleGravitySimulation <: SimulationType end
 
-main(p::Parameters, ::BurgersSimulation) = BurgerTrixi.solve_disc(p.N, p.xmin, p.xmax, p.refinement_level, p.ρ, p.t_span)
+main(p::Parameters, ::BurgersSimulation) = BurgerTrixi.solve_disc(p.xmin, p.xmax, p.refinement_level, p.ρ, p.t_span, p.polydegree, p.flux_type)
 main(p::Parameters, ::EulerWithSourceSimulation) = EulerSource.solve_euler(p.source)
 main(p::Parameters, ::SimpleGravitySimulation) = SimpleGravitySimulation.solve_gravity_sim(p.ρ)
 

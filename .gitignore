@@ -27,3 +27,7 @@ Manifest.toml
 
 #Julia system image
 JuliaSysimage.dll
+
+#python stuff
+__pycache__
+*.pyc

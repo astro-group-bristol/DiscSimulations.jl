@@ -10,6 +10,7 @@ import matplotlib.pyplot as plt
 import matplotlib as mpl
 import sys
 import time
+#import cProfile
 
 mpl.rcParams['mathtext.fontset'] = 'cm'
 mpl.rcParams['mathtext.rm'] = 'serif'
@@ -45,7 +46,6 @@ class Grid1d(object):
     def scratch_array(self):
         """ return a scratch array dimensioned for our grid """
         return np.zeros((self.nx+2*self.ng), dtype=np.float64)
-
 
     def fill_BCs(self):
         """ fill all ghostcells as periodic """
@@ -104,12 +104,12 @@ class Simulation(object):
             self.grid.u[self.grid.x > 0.5] = 2.0
 
 
-
+    
     def timestep(self, C):
         return C*self.grid.dx/max(abs(self.grid.u[self.grid.ilo:
                                                   self.grid.ihi+1]))
 
-
+    
     def states(self, dt):
         """ compute the left and right interface states """
 
@@ -176,7 +176,7 @@ class Simulation(object):
 
         return 0.5*us*us
 
-
+    
     def update(self, dt, flux):
         """ conservative update """
 
@@ -189,7 +189,7 @@ class Simulation(object):
 
         return unew
 
-
+    #@profile
     def evolve(self, C, tmax):
 
         self.t = 0.0
@@ -221,14 +221,14 @@ class Simulation(object):
 
             self.t += dt
     
-
+#@profile
 def main():
     #-----------------------------------------------------------------------------
     # sine
 
     xmin = 0.0
     xmax = 1.0
-    nx = 256
+    nx = 64
     ng = 2
     g = Grid1d(nx, ng, bc="periodic")
 
@@ -257,19 +257,25 @@ def main():
 
     timeTaken = time.perf_counter() - start
 
-    #print(f"Completed Execution in {timeTaken} seconds")
-
     g = s.grid
     plt.plot(g.x[g.ilo:g.ihi+1], uinit[g.ilo:g.ihi+1], ls=":", color="0.9", zorder=-1)
 
+    xs = g.x[g.ilo:g.ihi+1]
+    #us = uinit[g.ilo:g.ihi+1]
+    us = g.u[g.ilo:g.ihi+1]
+    
     plt.xlabel("$x$")
     plt.ylabel("$u$")
     plt.savefig("fv-burger-sine.pdf")
 
-    f = open('python-data.csv','w')
-    f.write('x: ')
-    #f.write(str(g.x[g.ilo:g.ihi+1]))
-    f.write(str(g.u[g.ilo:g.ihi+1]))
+    f = open('python-xs.txt','w')
+    for i in range(len(xs)):
+        f.write(str(xs[i]) + '\n')
+    f.close()
+
+    f = open('python-us.txt','w')
+    for i in range(len(us)):
+        f.write(str(us[i]) + '\n')
     f.close()
 
     return timeTaken
