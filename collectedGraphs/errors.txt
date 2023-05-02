@@ -56,7 +56,7 @@ MSE: 0.00557124123320567
 4
 2758 samples
 median 928μs
-2.3301μs
+2.3301ms
 163.27KiB
 
 dy: -0.019213917632710673
@@ -159,14 +159,10 @@ MSE: 0.0003252164958825785
 
 **Trixi vs Julia**
 -Julia simple method
+
 -Julia spectral
+
 -Trixi
-
- 
-
-**Trixi vs Trixi**
-~Initial mesh refinement~
--refinement: 1, 2, 3, 4, 5, 6, 7, 8, 9, 10
 
  
 N 1024 for all
@@ -202,7 +198,7 @@ MSE: 0.0001220728747760191
 -flux_ranocha
 error
 
-
+used 1024
 ~Polynomial degree~
 2
 range 16.8 ms to 51.3 ms
@@ -226,12 +222,12 @@ median 57.7
 mean 60.35ms
 21.92 MiB
 
-dy: -0.01842761583594093
-abs_dy: 0.07445472671726651
-relerr: 0.08289825229965751
-pererr: 8.289825229965746
-mean_err: 0.07445472671726651
-MSE: 0.02301789423594891
+dy: -0.0013089507679571355
+abs_dy: 0.0029887766189824632
+relerr: 0.003431487446766604
+pererr: 0.34314874467666034
+mean_err: 0.0029887766189824632
+MSE: 0.00020116362338661384
 
 5
 86ms to 115ms
@@ -286,3 +282,36 @@ mean_err: 0.00048692105057538207
 MSE: 0.00011014404909550833
 
 89.91MiB
+
+
+
+results
+python (N = 256) (127 samples) - 53.03 ms
+python (N = 1024) (127 samples) - 271.8 ms
+julia (N = 256, refinement 4) (3256 samples) - 2.02 ms, 175 kb
+julia (N = 1024, init refinement 8) (128 samples) - 39.07 ms, 13 mb
+julia (N = 1024, init refinement 9) (28 samples) - 201.47 ms
+julia (N = 16384, init refinement 10) (10 samples) - 537.77 ms
+
+NEW PYTHON RESULTS (not including plotting time)
+python (N = 256) (127 samples) - 37.66 ms
+python (N = 1024) (127 samples) - 260.22 ms
+python (N = 256) (3256 samples) - 40.34 ms
+
+NEW JULIA RESULTS
+julia (N = 256, refinement 5) (1436 samples) - 4.83 ms, 420 kb
+julia (N = 256, refinement 6) (1033 samples) - 4.83 ms, 1.19 mb
+refinement 6 is true 256!!
+julia (N = 256, refinement 7) (368 samples) - 13.57 ms, 3.81 mb
+
+WITH NO PLOTTING
+n = 8 1.18ms
+n 16 2.03ms
+n 32 3.92ms
+n 64 7.60ms
+n 128 17ms
+n 256 37.79ms
+n 512 95.25ms
+1024 254ms
+n 2048 797 ms
+n 4096 2.56s (2562ms)

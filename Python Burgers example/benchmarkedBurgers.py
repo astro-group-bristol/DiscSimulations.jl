@@ -10,7 +10,12 @@ import matplotlib.pyplot as plt
 import matplotlib as mpl
 import sys
 import time
-#import cProfile
+import cProfile
+from memory_profiler import profile
+from pympler import asizeof
+from pympler import muppy
+from pympler import summary
+from pympler import classtracker
 
 mpl.rcParams['mathtext.fontset'] = 'cm'
 mpl.rcParams['mathtext.rm'] = 'serif'
@@ -41,7 +46,6 @@ class Grid1d(object):
 
         # storage for the solution
         self.u = np.zeros((nx+2*ng), dtype=np.float64)
-
 
     def scratch_array(self):
         """ return a scratch array dimensioned for our grid """
@@ -104,12 +108,10 @@ class Simulation(object):
             self.grid.u[self.grid.x > 0.5] = 2.0
 
 
-    
     def timestep(self, C):
         return C*self.grid.dx/max(abs(self.grid.u[self.grid.ilo:
                                                   self.grid.ihi+1]))
 
-    
     def states(self, dt):
         """ compute the left and right interface states """
 
@@ -176,7 +178,6 @@ class Simulation(object):
 
         return 0.5*us*us
 
-    
     def update(self, dt, flux):
         """ conservative update """
 
@@ -189,7 +190,6 @@ class Simulation(object):
 
         return unew
 
-    #@profile
     def evolve(self, C, tmax):
 
         self.t = 0.0
@@ -221,16 +221,22 @@ class Simulation(object):
 
             self.t += dt
     
-#@profile
 def main():
     #-----------------------------------------------------------------------------
     # sine
 
+    tr = classtracker.ClassTracker()
+    tr.track_class(Grid1d)
+    tr.create_snapshot()
+    
     xmin = 0.0
     xmax = 1.0
-    nx = 64
+    nx = 1024
     ng = 2
     g = Grid1d(nx, ng, bc="periodic")
+
+    tr.create_snapshot()
+    tr.stats.print_summary()
 
     # maximum evolution time based on period for unit velocity
     tmax = (xmax - xmin)/1.0
@@ -253,10 +259,15 @@ def main():
 
         c = 1.0 - (0.1 + i*0.1)
         g = s.grid
-        plt.plot(g.x[g.ilo:g.ihi+1], g.u[g.ilo:g.ihi+1], color=str(c))
+        #plt.plot(g.x[g.ilo:g.ihi+1], g.u[g.ilo:g.ihi+1], color=str(c))
 
     timeTaken = time.perf_counter() - start
 
+    tr.create_snapshot()
+    tr.stats.print_summary()
+
+    print(asizeof.asizeof(s))
+    
     g = s.grid
     plt.plot(g.x[g.ilo:g.ihi+1], uinit[g.ilo:g.ihi+1], ls=":", color="0.9", zorder=-1)
 
@@ -277,6 +288,11 @@ def main():
     for i in range(len(us)):
         f.write(str(us[i]) + '\n')
     f.close()
+
+    allObjects = muppy.get_objects()
+    len(allObjects)
+    sum = summary.summarize(allObjects)
+    summary.print_(sum)
 
     return timeTaken
 

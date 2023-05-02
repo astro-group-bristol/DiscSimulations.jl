@@ -21,11 +21,14 @@ end
 #params expects this so we're defining a dummy one
 source_zero(u, x, t, equations) = SVector(0, 0, 0)
 
-params = DiscSimulations.Parameters(xmin, xmax, initial_condition_burgers, source_zero, t_span, 10, 3, Trixi.flux_lax_friedrichs)
+params = DiscSimulations.Parameters(xmin, xmax, initCond, source_zero, t_span, 6, 3, Trixi.flux_lax_friedrichs)
 
 @benchmark solution = DiscSimulations.main(params, DiscSimulations.BurgersSimulation())
 solution = DiscSimulations.main(params, DiscSimulations.BurgersSimulation())
 s = DiscSimulations.DiscSolution(solution.sol, solution.semi, DiscSimulations.OneDimension())
+
+simpleSol = DiscSimulations.main(params, DiscSimulations.SimpleBurgersSimulation())
+spectralSol = DiscSimulations.main(params, DiscSimulations.SpectralBurgersSimulation())
 
 s1 = DiscSimulations.DiscSolution(solution.sol, solution.semi, DiscSimulations.OneDimension())
 s2 = DiscSimulations.DiscSolution(solution.sol, solution.semi, DiscSimulations.OneDimension())
@@ -124,7 +127,7 @@ t_mean_err = 0
 t_MSE = 0        
 t_RMSE = 0
 
-y = last(s7.sol)
+y = last(poly4.sol)
 inc = length(y) / 256
 inc = 256 / length(y)
 for i in 1:256
