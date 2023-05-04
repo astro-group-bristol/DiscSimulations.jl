@@ -24,3 +24,10 @@ docs/site/
 Manifest.toml
 
 .vscode
+
+#Julia system image
+JuliaSysimage.dll
+
+#python stuff
+__pycache__
+*.pyc

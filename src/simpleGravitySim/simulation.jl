@@ -1,7 +1,7 @@
 module simpleGravitySimulation
 
-include("./simpleGravity.jl")
-using .simpleGravity
+import DiscSimulations:
+    simpleGravity
 using Trixi
 using OrdinaryDiffEq
 using Plots

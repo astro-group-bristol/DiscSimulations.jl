@@ -20,7 +20,7 @@ using Plots
     du1 = -cos(ϕ)*ρ*(G*mₛ/(r^2))
     du2 = -sin(ϕ)*ρ*(G*mₛ/(r^2))
     du3 = -(ux*cos(ϕ) + uy*sin(ϕ))*ρ*(G*mₛ/(r^2))
-    return SVector(du1, du2, du3)
+    return SVector(0, du1, du3)
 end
 
 source_zero(u, x, t, equations) = SVector(0, 0, 0)

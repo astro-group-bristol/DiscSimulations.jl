@@ -4,25 +4,55 @@ using DiscSimulations
 using Plots
 using DifferentialEquations
 using Printf
+using Trixi
 
 N = 512
 xmax = 2π
 
-simple_x, _, simple_problem = BurgerSimple.setup(N, xmax)
+function initial_condition_burgers(x)
+    u = 1.0
+    if(x[1] >= 0.333 && x[1] <= 0.666)
+        u = u + 0.5*sin(2.0*π*(x[1]-0.333)/0.333)
+    end
+    return u
+end
+
+function _wrap_init_conditions(f::Function)
+    function _wrapper(x)
+        map(x) do i
+            f(SVector(i))
+        end
+    end
+end
+
+simple_x, _, simple_problem = BurgerSimple.setup(N, xmax, _wrap_init_conditions(initial_condition_burgers))
 simple_sol =
     @time solve(simple_problem, Rodas5(autodiff = false); reltol = 1e-7, abstol = 1e-7)
 
-spectral_x, _, T, Ti, spectral_problem = BurgerSpectral.setup(N, xmax)
+spectral_x, _, T, Ti, spectral_problem = BurgerSpectral.setup(N, xmax, _wrap_init_conditions(initial_condition_burgers))
 spectral_sol =
     @time solve(spectral_problem, Rodas5(autodiff = false); reltol = 1e-7, abstol = 1e-7)
 
-# trixi_x, trixi_problem = BurgerTrixi.setup(N, xmax)
-# trixi_sol = @time solve(trixi_problem, RDPK3SpFSAL49(), abstol=1.0e-7, reltol=1.0e-7)
+trixi_x, trixi_problem = BurgerTrixi.setup(0, xmax, initial_condition_burgers, (0.0,2.0), 7, 3, flux_lax_friedrichs)
+trixi_sol = @time solve(trixi_problem, RDPK3SpFSAL49(), abstol=1.0e-7, reltol=1.0e-7)
 
 # use the new disc solution type
-discsol = BurgerTrixi.solve_disc(N, xmax)
+discsol = BurgerTrixi.solve_disc(0, xmax, 7)
 # plot that individually
 DiscSimulations.plotgif(discsol, 0.0, 1.0)
+
+p = plot()
+plot!(simple_x, simple_sol(1.0), label = "Simple")
+plot!(spectral_x, Ti * spectral_sol(1.0), label = "Spectral")
+plot!(trixi_x, Ti * trixi_sol(1.0), label = "Trixi")
+plot!(
+    p,
+    legend = :outertopright,
+    title = Printf.@sprintf("t = %1.2f", 1.0),
+    ylims = (-0.1, 2.1),
+    xlabel = "x",
+    ylabel = "f",
+)
 
 tspan = collect(range(0.0, 1.0, 60))
 frames = Plots.@animate for t in tspan

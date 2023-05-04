@@ -1,0 +1,10 @@
+Filename: C:\Users\alice\AppData\Local\Programs\Python\Python310\lib\site-packages\memory_profiler.py
+
+Line #    Mem usage    Increment  Occurrences   Line Contents
+=============================================================
+  1185    132.2 MiB    132.2 MiB           1               @wraps(wrapped=func)
+  1186                                                     def wrapper(*args, **kwargs):
+  1187    132.2 MiB      0.0 MiB           1                   prof = get_prof()
+  1188    132.2 MiB     -0.0 MiB           1                   val = prof(func)(*args, **kwargs)
+  1189    132.2 MiB      0.0 MiB           1                   show_results_bound(prof)
+  1190    132.2 MiB      0.0 MiB           1                   return val
