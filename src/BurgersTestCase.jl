@@ -21,36 +21,11 @@ end
 #params expects this so we're defining a dummy one
 source_zero(u, x, t, equations) = SVector(0, 0, 0)
 
-params = DiscSimulations.Parameters(xmin, xmax, initCond, source_zero, t_span, 6, 3, Trixi.flux_lax_friedrichs)
+params = DiscSimulations.Parameters(xmin, xmax, initial_condition_burgers, source_zero, t_span, 8, 3, Trixi.flux_lax_friedrichs)
 
 @benchmark solution = DiscSimulations.main(params, DiscSimulations.BurgersSimulation())
 solution = DiscSimulations.main(params, DiscSimulations.BurgersSimulation())
 s = DiscSimulations.DiscSolution(solution.sol, solution.semi, DiscSimulations.OneDimension())
-
-simpleSol = DiscSimulations.main(params, DiscSimulations.SimpleBurgersSimulation())
-spectralSol = DiscSimulations.main(params, DiscSimulations.SpectralBurgersSimulation())
-
-s1 = DiscSimulations.DiscSolution(solution.sol, solution.semi, DiscSimulations.OneDimension())
-s2 = DiscSimulations.DiscSolution(solution.sol, solution.semi, DiscSimulations.OneDimension())
-s3 = DiscSimulations.DiscSolution(solution.sol, solution.semi, DiscSimulations.OneDimension())
-s4 = DiscSimulations.DiscSolution(solution.sol, solution.semi, DiscSimulations.OneDimension())
-s5 = DiscSimulations.DiscSolution(solution.sol, solution.semi, DiscSimulations.OneDimension())
-s6 = DiscSimulations.DiscSolution(solution.sol, solution.semi, DiscSimulations.OneDimension())
-s7 = DiscSimulations.DiscSolution(solution.sol, solution.semi, DiscSimulations.OneDimension())
-s8 = DiscSimulations.DiscSolution(solution.sol, solution.semi, DiscSimulations.OneDimension())
-s9 = DiscSimulations.DiscSolution(solution.sol, solution.semi, DiscSimulations.OneDimension())
-s10 = DiscSimulations.DiscSolution(solution.sol, solution.semi, DiscSimulations.OneDimension())
-
-
-fg = DiscSimulations.DiscSolution(solution.sol, solution.semi, DiscSimulations.OneDimension())
-feo = DiscSimulations.DiscSolution(solution.sol, solution.semi, DiscSimulations.OneDimension())
-
-poly2 = DiscSimulations.DiscSolution(solution.sol, solution.semi, DiscSimulations.OneDimension())
-poly4 = DiscSimulations.DiscSolution(solution.sol, solution.semi, DiscSimulations.OneDimension())
-poly5 = DiscSimulations.DiscSolution(solution.sol, solution.semi, DiscSimulations.OneDimension())
-poly6 = DiscSimulations.DiscSolution(solution.sol, solution.semi, DiscSimulations.OneDimension())
-poly7 = DiscSimulations.DiscSolution(solution.sol, solution.semi, DiscSimulations.OneDimension())
-poly8 = DiscSimulations.DiscSolution(solution.sol, solution.semi, DiscSimulations.OneDimension())
 
 function importAndRead(filexs, fileus)
     pyDXs = []
@@ -86,37 +61,6 @@ pd = PlotData1D(solution.sol)
 plot(pd, title="Trixi and Python Burgers Comparison", ylabel="u")
 plot!(pyDXs, pyDUs)
 savefig("PythonVsTrixi-1024.png")
-
-pd1 = PlotData1D(s1.sol)
-pd2 = PlotData1D(s2.sol)
-pd3 = PlotData1D(s3.sol)
-pd4 = PlotData1D(s4.sol)
-pd5 = PlotData1D(s5.sol)
-pd6 = PlotData1D(s6.sol)
-pd7 = PlotData1D(s7.sol)
-pd8 = PlotData1D(s8.sol)
-pd9 = PlotData1D(s9.sol)
-pd10 = PlotData1D(s10.sol)
-
-pdfg = PlotData1D(fg.sol)
-pdfeo = PlotData1D(feo.sol)
-
-pdpoly2 = PlotData1D(poly2.sol)
-pdpoly4 = PlotData1D(poly4.sol)
-pdpoly5 = PlotData1D(poly5.sol)
-pdpoly6 = PlotData1D(poly6.sol)
-pdpoly7 = PlotData1D(poly7.sol)
-pdpoly8 = PlotData1D(poly8.sol)
-
-plot(pdpoly8, title="Trixi Polynomial 8", ylabel="u")
-plot!(pyDXs, pyDUs)
-savefig("TrixiPoly8.png")
-savefig("TrixiPoly8Comp.png")
-
-plot(pd10, title="Trixi Initial Refinement 10", ylabel="u", label="Trixi")
-plot!(pyDXs256, pyDUs256, label="Python")
-plot!(legend=:topleft)
-savefig("InitRefinement10Compare.png")
 
 #error calculation
 t_dy = 0
@@ -164,11 +108,5 @@ function printErrs(t_dy, t_abs_dy, t_relerr, t_pererr, t_mean_err, t_MSE, N)
 end
 
 printErrs(t_dy, t_abs_dy, t_relerr, t_pererr, t_mean_err, t_MSE, 256)
-
-print(string(solver(tmax)))
-
-open("julia-output.txt", "w") do file
-    write(file, string(solution.sol))
-end
 
 DiscSimulations.plotgif(poly2, t_span[1], t_span[2]; xlims = (0, 1), ylims = (0, 2), legend = :topright)

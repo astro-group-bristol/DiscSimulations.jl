@@ -17,17 +17,23 @@ function initial_condition_burgers(x)
     return u
 end
 
-burgerInit(x) = @. 1 - cos(x)
+function _wrap_init_conditions(f::Function)
+    function _wrapper(x)
+        map(x) do i
+            f(SVector(i))
+        end
+    end
+end
 
-simple_x, _, simple_problem = BurgerSimple.setup(N, xmax, initial_condition_burgers)
+simple_x, _, simple_problem = BurgerSimple.setup(N, xmax, _wrap_init_conditions(initial_condition_burgers))
 simple_sol =
     @time solve(simple_problem, Rodas5(autodiff = false); reltol = 1e-7, abstol = 1e-7)
 
-spectral_x, _, T, Ti, spectral_problem = BurgerSpectral.setup(N, xmax, initial_condition_burgers)
+spectral_x, _, T, Ti, spectral_problem = BurgerSpectral.setup(N, xmax, _wrap_init_conditions(initial_condition_burgers))
 spectral_sol =
     @time solve(spectral_problem, Rodas5(autodiff = false); reltol = 1e-7, abstol = 1e-7)
 
-trixi_x, trixi_problem = BurgerTrixi.setup(0, xmax, burgerInit, (0.0,2.0), 7, 3, flux_lax_friedrichs)
+trixi_x, trixi_problem = BurgerTrixi.setup(0, xmax, initial_condition_burgers, (0.0,2.0), 7, 3, flux_lax_friedrichs)
 trixi_sol = @time solve(trixi_problem, RDPK3SpFSAL49(), abstol=1.0e-7, reltol=1.0e-7)
 
 # use the new disc solution type

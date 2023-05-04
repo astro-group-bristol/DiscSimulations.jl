@@ -16,6 +16,9 @@ from pympler import asizeof
 from pympler import muppy
 from pympler import summary
 from pympler import classtracker
+import tracemalloc
+import linecache
+import os
 
 mpl.rcParams['mathtext.fontset'] = 'cm'
 mpl.rcParams['mathtext.rm'] = 'serif'
@@ -220,23 +223,32 @@ class Simulation(object):
             self.grid.u[:] = unew[:]
 
             self.t += dt
-    
+
+def display_top(snapshot, key_type='lineno', limit=10):
+    snapshot = snapshot.filter_traces((
+        tracemalloc.Filter(False, "<frozen importlib._bootstrap>"),
+        tracemalloc.Filter(False, "<unknown>"),
+    ))
+    top_stats = snapshot.statistics(key_type)
+
+    other = top_stats[limit:]
+    if other:
+        size = sum(stat.size for stat in other)
+        print("%s other: %.1f KiB" % (len(other), size / 1024))
+    total = sum(stat.size for stat in top_stats)
+    print("Total allocated size: %.1f KiB" % (total / 1024))
+            
 def main():
     #-----------------------------------------------------------------------------
     # sine
 
-    tr = classtracker.ClassTracker()
-    tr.track_class(Grid1d)
-    tr.create_snapshot()
+    tracemalloc.start()
     
     xmin = 0.0
     xmax = 1.0
-    nx = 1024
+    nx = 256
     ng = 2
     g = Grid1d(nx, ng, bc="periodic")
-
-    tr.create_snapshot()
-    tr.stats.print_summary()
 
     # maximum evolution time based on period for unit velocity
     tmax = (xmax - xmin)/1.0
@@ -262,13 +274,9 @@ def main():
         #plt.plot(g.x[g.ilo:g.ihi+1], g.u[g.ilo:g.ihi+1], color=str(c))
 
     timeTaken = time.perf_counter() - start
-
-    tr.create_snapshot()
-    tr.stats.print_summary()
-
-    print(asizeof.asizeof(s))
     
     g = s.grid
+    
     plt.plot(g.x[g.ilo:g.ihi+1], uinit[g.ilo:g.ihi+1], ls=":", color="0.9", zorder=-1)
 
     xs = g.x[g.ilo:g.ihi+1]
@@ -289,10 +297,14 @@ def main():
         f.write(str(us[i]) + '\n')
     f.close()
 
-    allObjects = muppy.get_objects()
-    len(allObjects)
-    sum = summary.summarize(allObjects)
-    summary.print_(sum)
+    snapshot = tracemalloc.take_snapshot()
+
+    display_top(snapshot)
+
+    print(asizeof.asizeof(g))
+    print(asizeof.asizeof(s))
+
+    tracemalloc.stop()
 
     return timeTaken
 
